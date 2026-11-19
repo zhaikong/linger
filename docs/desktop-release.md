@@ -19,17 +19,28 @@ becomes the latest release. Link there, not to a version.
 
 ## Releasing
 
+Stable releases use a two-stage Draft → Publish flow so release subscribers and
+auto-updating clients never see placeholder notes before the final release notes
+are attached.
+
 In a checkout of simplexai-labs/linger:
 
 ```sh
+# 1. Tag and push to build all targets and create the draft GitHub Release
 git tag desktop-v0.16.36
 git push origin desktop-v0.16.36
+
+# 2. Once Desktop release finishes, attach release notes and publish as latest
+scripts/ci/desktop-release.sh publish desktop-v0.16.36 --notes-file notes.md
 ```
 
 - The tag is `desktop-v<major>.<minor>.<patch>`, optionally with a suffix such
   as `-rc.1`, beside the `cli-v<version>` tags of the CLI. A version with a
-  hyphen is published as a GitHub prerelease whose notes start with
-  **Prerelease**; a stable version is marked as the latest release.
+  hyphen is published immediately as a GitHub prerelease whose notes start with
+  **Prerelease**; a stable version is created as a draft release until
+  `scripts/ci/desktop-release.sh publish` validates the uploaded assets,
+  attaches the release notes, marks it as the latest release, and cleans up
+  matching `desktop-v<version>-rc.*` prereleases and tags.
 - The version comes from the tag. The build writes it into
   `apps/desktop/package.json` for packaging and restores the file afterwards, so
   no version commit is needed.
@@ -56,9 +67,10 @@ credentials, downloads no model weights, and does not verify the graphical
 installer, model inference, restart persistence, or uninstallation. `release`
 requires `windows-smoke` to pass, downloads `desktop-*`, checks the same
 `windows-setup.sha256` digest before removing that file, writes
-`SHA256SUMS.txt`, and creates the GitHub Release (or uploads the files again to
-an existing one). A manual run publishes only with `publish` set, and a
-`publish=false` run still executes `windows-smoke`.
+`SHA256SUMS.txt`, and creates the GitHub Release (as a draft for stable tags or
+published prerelease for hyphenated tags; reruns upload files to an existing
+release with `--clobber`). A manual run creates a release only with `publish`
+set, and a `publish=false` run still executes `windows-smoke`.
 
 The release goes to `RELEASE_REPO`, `simplexai-labs/linger` by default:
 
@@ -121,9 +133,12 @@ gh release upload native-deps <archive> --repo simplexai-labs/linger
    From another repository, also set `LINGER_RELEASE_TOKEN` there and push
    the tags to that repository instead.
 
-3. Check the release page, download each file and compare it with
-   `SHA256SUMS.txt`. A test release is removed with its tag:
-   `gh release delete desktop-v0.16.36-rc.1 --repo simplexai-labs/linger --cleanup-tag`.
+3. Check the draft release page, download each file and compare it with
+   `SHA256SUMS.txt`, then publish the stable release with its notes:
+   `scripts/ci/desktop-release.sh publish desktop-v0.16.36 --notes-file notes.md`
+   (this also deletes matching `desktop-v0.16.36-rc.*` prereleases and tags; a
+   standalone test prerelease can still be removed with
+   `gh release delete desktop-v0.16.36-rc.1 --repo simplexai-labs/linger --cleanup-tag`).
 
 ### Physical Windows acceptance
 

@@ -7,7 +7,7 @@
     "teamhub": "bin/teamhub"
   },
   "scripts": {
-    "build": "node scripts/build-cli.mjs",
+    "build": "node init && node scripts/build-cli.mjs",
     "test": "vitest run --config vitest.config.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "typecheck": "tsc -p tsconfig.json --noEmit",

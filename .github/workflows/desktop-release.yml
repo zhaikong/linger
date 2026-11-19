@@ -1,13 +1,16 @@
 name: Desktop release
 
 # Pushing a desktop-v<version> tag builds the macOS (Apple silicon), Linux x64
-# and Windows x64 packages and publishes them, with SHA256SUMS.txt, as the
+# and Windows x64 packages and uploads them, with SHA256SUMS.txt, to the
 # GitHub Release of that tag in RELEASE_REPO (simplexai-labs/linger unless the
-# variable says otherwise); a version with a hyphen is a prerelease. A manual
-# run builds a version from the chosen branch and keeps the files as workflow
-# artifacts unless "publish" is set. scripts/ci/desktop-release.sh does the
-# work; docs/desktop-release.md lists the variables and secrets. This is the
-# only workflow that publishes desktop releases.
+# variable says otherwise). Stable tags create a draft release so release notes
+# are attached before notifying subscribers or updating releases/latest
+# (`scripts/ci/desktop-release.sh publish`); versions with a hyphen publish
+# immediately as prereleases. A manual run builds a version from the chosen
+# branch and keeps the files as workflow artifacts unless "publish" is set.
+# scripts/ci/desktop-release.sh does the work; docs/desktop-release.md lists
+# the variables and secrets. This is the only workflow that publishes desktop
+# releases.
 on:
   push:
     tags: ["desktop-v*"]
@@ -323,7 +326,7 @@ jobs:
       - run: scripts/ci/desktop-release.sh checksums release "${{ needs.prepare.outputs.version }}"
       # GITHUB_TOKEN can write only this repository; a release in another one
       # takes LINGER_RELEASE_TOKEN, which prepare checked.
-      - name: Publish the release
+      - name: Create or update the GitHub Release
         env:
           GH_TOKEN: ${{ env.RELEASE_REPO == github.repository && github.token || secrets.LINGER_RELEASE_TOKEN }}
         run: >-

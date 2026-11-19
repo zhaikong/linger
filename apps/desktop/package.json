@@ -5,9 +5,9 @@
   "type": "module",
   "main": "dist/main/index.mjs",
   "scripts": {
-    "build": "node build.mjs",
+    "build": "node init && node build.mjs",
     "electron:install": "node node_modules/electron/install.js",
-    "start": "node build.mjs && electron .",
+    "start": "node init && node build.mjs && electron .",
     "test": "vitest run --config vitest.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint --max-warnings=0 src build.mjs scripts vitest.config.ts"

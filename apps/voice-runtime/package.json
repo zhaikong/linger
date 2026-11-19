@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts dev",
-    "build": "tsc -p tsconfig.build.json",
-    "start": "NODE_OPTIONS=--conditions=linger-production node dist/main.js start",
+    "dev": "node init && tsx watch src/main.ts dev",
+    "build": "node init && tsc -p tsconfig.build.json",
+    "start": "node init && NODE_OPTIONS=--conditions=linger-production node dist/main.js start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint --max-warnings=0 .",
     "test": "vitest run --config vitest.config.ts",

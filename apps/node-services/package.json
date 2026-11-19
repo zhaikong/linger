@@ -8,13 +8,13 @@
     "node": ">=26.5.0 <27"
   },
   "scripts": {
-    "build": "pnpm catalog:generate && pnpm clean && tsc -p tsconfig.build.json && install -m 0644 src/agent/observability/agent-log-file-worker.mjs dist/agent/observability/agent-log-file-worker.mjs",
+    "build": "node init && pnpm catalog:generate && pnpm clean && tsc -p tsconfig.build.json && install -m 0644 src/agent/observability/agent-log-file-worker.mjs dist/agent/observability/agent-log-file-worker.mjs",
     "catalog:generate": "node --import tsx scripts/generate-feature-catalog.ts",
     "catalog:check": "node --import tsx scripts/generate-feature-catalog.ts --check",
     "check": "pnpm exec concurrently --success all --names types,lint \"pnpm typecheck\" \"pnpm lint\" && pnpm test",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "dev": "node ../../scripts/with-local-env.mjs -- node --watch --watch-preserve-output --import tsx src/main.ts",
-    "start": "node ../../scripts/with-local-env.mjs -- node --import tsx scripts/dev-supervisor.ts",
+    "dev": "node init && node ../../scripts/with-local-env.mjs -- node --watch --watch-preserve-output --import tsx src/main.ts",
+    "start": "node init && node ../../scripts/with-local-env.mjs -- node --import tsx scripts/dev-supervisor.ts",
     "lint": "eslint --max-warnings=0 src tests scripts vitest.config.ts",
     "test": "vitest run",
     "typecheck": "pnpm catalog:check && tsc -p tsconfig.json --noEmit",
